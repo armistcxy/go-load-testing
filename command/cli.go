@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
+	"runtime"
 	"time"
 
 	"github.com/armistcxy/go-load-testing/internal/attacker"
@@ -76,6 +78,18 @@ func main() {
 				Required: false, // default is "results.bin"
 			},
 		},
+		Action: func(ctx *cli.Context) error {
+			binaryResultPath := ctx.String("path")
+			if binaryResultPath == "" {
+				binaryResultPath = "results.bin"
+			}
+			createHTMLFileCmd := exec.Command("sh", "-c", fmt.Sprintf("cat %s | vegeta plot > plot.html", binaryResultPath))
+			if err := createHTMLFileCmd.Run(); err != nil {
+				return err
+			}
+
+			return openBrowser("plot.html")
+		},
 	}
 
 	figureCommand := &cli.Command{
@@ -97,4 +111,24 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func openBrowser(url string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "linux":
+		cmd = "xdg-open"
+	case "windows":
+		cmd = "rundll32"
+		args = append(args, "url.dll,FileProtocolHandler")
+	case "darwin": // macOS
+		cmd = "open"
+	default:
+		return fmt.Errorf("unsupported platform")
+	}
+
+	args = append(args, url)
+	return exec.Command(cmd, args...).Start()
 }
