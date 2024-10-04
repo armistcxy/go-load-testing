@@ -25,7 +25,7 @@ Use `goltest help attack` to see information about flags.
 
 Example 
 ```bash
-./goltest attack -p fig.json -f 100 --per 1 -d 60
+goltest attack -p fig.json -f 100 --per 1 -d 60
 ```
 
 Structure of the config file (*json format*)
