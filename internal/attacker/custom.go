@@ -54,6 +54,7 @@ func (ctb CustomTargeterBuilder) BuildCustomTargeter() (vegeta.Targeter, error) 
 	// Prepare header
 	header := http.Header{}
 	for key, val := range ctb.Header {
+		header.Set(key, val)
 		header.Add(key, val)
 	}
 
